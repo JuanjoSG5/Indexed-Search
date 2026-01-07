@@ -1,0 +1,192 @@
+@if (architectureData()) {
+<section
+  class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex flex-col items-center px-4 py-16 gap-16">
+
+  <!-- Hero Section -->
+  <div class="max-w-4xl w-full text-center mb-8">
+    <h1
+      class="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 mb-6">
+      {{ architectureData()!.hero.title }}
+    </h1>
+    <p class="text-lg text-slate-300 leading-relaxed">
+      {{ architectureData()!.hero.description }}
+    </p>
+  </div>
+
+  <!-- Problem/Solution Cards -->
+  @if (architectureData()!.problemSolution.length) {
+  <section class="max-w-6xl w-full">
+    <div class="grid md:grid-cols-3 gap-6">
+      @for (card of architectureData()!.problemSolution; track card.title) {
+      <div class="
+          group
+          p-8 rounded-2xl 
+          bg-slate-800/40 
+          border border-slate-700/50 hover:border-blue-500/50
+          transition-all duration-300 hover:-translate-y-2
+          backdrop-blur-sm
+        ">
+        <div
+          class="text-4xl mb-4 bg-slate-900/50 w-16 h-16 flex items-center justify-center rounded-xl group-hover:scale-110 transition duration-300">
+          {{ card.icon }}
+        </div>
+        <h4 class="text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors">
+          {{ card.title }}
+        </h4>
+        <p class="text-slate-400 text-sm leading-relaxed">
+          {{ card.desc }}
+        </p>
+      </div>
+      }
+    </div>
+  </section>
+  }
+
+  <!-- Request Lifecycle / Workflow -->
+  @if (architectureData()!.workflow.steps.length) {
+  <section class="max-w-4xl w-full">
+    <h3 class="text-2xl font-bold text-slate-200 text-center mb-10">
+      {{ architectureData()!.workflow.title }}
+    </h3>
+
+    <div class="space-y-4">
+      @for (step of architectureData()!.workflow.steps; track $index) {
+      <div
+        class="flex items-start gap-4 p-4 rounded-xl hover:bg-white/5 transition duration-300 border border-transparent hover:border-slate-700">
+        <div
+          class="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center font-mono font-bold border border-blue-500/30">
+          {{ step.step }}
+        </div>
+        <p class="text-slate-300 pt-1 text-lg">{{ step.desc }}</p>
+      </div>
+      }
+    </div>
+  </section>
+  }
+
+
+  <!-- Benchmarks / Stats -->
+  @if (architectureData()!.stats.items.length) {
+  <section class="w-full bg-slate-900/30 py-12 border-y border-slate-800/50 backdrop-blur-sm">
+    <div class="max-w-6xl mx-auto px-4">
+      <h3 class="text-center text-slate-400 uppercase tracking-widest text-sm font-bold mb-10">
+        {{ architectureData()!.stats.title }}
+      </h3>
+      <div
+        class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center divide-y md:divide-y-0 md:divide-x divide-slate-800">
+        @for (stat of architectureData()!.stats.items; track stat.label) {
+        <div class="flex flex-col items-center py-4 md:py-0">
+          <span
+            class="text-5xl md:text-6xl font-black font-mono text-transparent bg-clip-text bg-gradient-to-b from-white to-slate-500 mb-2">
+            {{ stat.value }}
+          </span>
+          <span class="text-blue-400 font-bold mb-1">{{ stat.label }}</span>
+          <span class="text-slate-500 text-xs uppercase tracking-wide">{{ stat.desc }}</span>
+        </div>
+        }
+      </div>
+    </div>
+  </section>
+  }
+
+  <!-- About the Engineer / Author & Contact -->
+  @if (architectureData()!.authorAndContact) {
+  <section
+    class="max-w-4xl w-full mx-auto p-8 rounded-2xl bg-slate-900/50 border border-slate-700/50 backdrop-blur-md shadow-xl">
+    <div class="text-center mb-8">
+
+
+      <div class="relative inline-block mb-6 group">
+        <img src="assets/profile.jpg" alt="Juan Jose" class="
+            w-28 h-28 
+            rounded-full 
+            object-cover object-top
+            border-4 border-slate-800 
+            shadow-2xl 
+            ring-2 ring-blue-400/50
+            
+            filter 
+            brightness-90 
+            saturate-[.60] 
+            contrast-110 
+            
+            transition-all duration-500 ease-in-out
+            group-hover:filter-none group-hover:scale-105 group-hover:ring-blue-400
+          ">
+        <!-- Status Dot -->
+        <div class="absolute bottom-1 right-2 w-5 h-5 bg-green-500 border-4 border-slate-800 rounded-full z-10"></div>
+      </div>
+
+      <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">
+        {{ architectureData()!.authorAndContact.title }}
+      </h2>
+      <p class="text-slate-300 leading-relaxed mb-6">
+        {{ architectureData()!.authorAndContact.bio }}
+      </p>
+
+      <!-- Status Badge -->
+      <div class="flex items-center justify-center gap-2 mb-6">
+        <span class="text-slate-400 text-sm">{{ architectureData()!.authorAndContact.status.label }}:</span>
+
+        <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800 border border-slate-700">
+
+          <span class="w-2 h-2 rounded-full animate-pulse flex-shrink-0"
+            [style.background-color]="architectureData()!.authorAndContact.status.indicatorColor"></span>
+
+          <span class="text-sm font-mono text-green-400 leading-none pt-[2px] font-bold tracking-wider">
+            {{ architectureData()!.authorAndContact.status.value }}
+          </span>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div class="text-center space-y-4 p-6 rounded-xl bg-slate-800/40 border border-slate-700/30">
+      <p class="text-slate-300 text-sm">
+        {{ architectureData()!.authorAndContact.cta.text }}
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+        <span class="text-blue-300 font-mono text-sm">{{ architectureData()!.authorAndContact.cta.email }}</span>
+        <button
+          class="px-6 py-2 rounded-lg bg-gradient-to-r from-blue-500 to-cyan-400 text-white font-semibold hover:shadow-lg hover:shadow-blue-500/50 transition-all duration-300 hover:-translate-y-0.5"
+          (click)="copyEmail()">
+          {{ architectureData()!.authorAndContact.cta.buttonText }}
+        </button>
+      </div>
+    </div>
+  </section>
+  }
+
+</section>
+} @else {
+<!-- LOADER -->
+<div class="min-h-screen bg-slate-950 flex flex-col items-center justify-center gap-4">
+  <div class="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+  <p class="text-slate-400 animate-pulse">Loading content...</p>
+</div>
+}
+
+@if (showToast) {
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 animate-fade-in-up">
+  <div
+    class="flex items-center gap-3 px-6 py-3 rounded-full bg-slate-900/90 border border-green-500/30 text-white shadow-2xl backdrop-blur-md">
+
+    <!-- Check Icon -->
+    <div class="w-6 h-6 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/50">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd"
+          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+          clip-rule="evenodd" />
+      </svg>
+    </div>
+
+    <!-- Text -->
+    <div>
+      <p class="text-sm font-semibold text-slate-100">Email Copied</p>
+      <p class="text-xs text-slate-400">Ready to paste</p>
+    </div>
+
+  </div>
+</div>
+}

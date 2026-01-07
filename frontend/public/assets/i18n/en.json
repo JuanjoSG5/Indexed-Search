@@ -1,0 +1,108 @@
+{
+  "common": {
+    "nav": {
+      "home": "Live Demo",
+      "architecture": "Architecture & Benchmarks"
+    },
+    "footer": {
+      "builtWith": "Built with Angular 20, NestJS & Supabase.",
+      "copyright": "© 2025 Juan Jose Sánchez González.",
+      "links": [
+        { "label": "Source Code", "url": "https://github.com/your-username/repo" },
+        { "label": "LinkedIn", "url": "https://linkedin.com/in/your-profile" }
+      ]
+    }
+  },
+  "home": {
+    "meta": {
+      "title": "Indexed Search | Live Demo",
+      "description": "Interactive demo of an in-memory inverted index using Node.js."
+    },
+    "hero": {
+      "badge": "Full Stack Engineering Showcase",
+      "h1": "I Built a Search Engine from Scratch",
+      "subtext": "No ElasticSearch. No Algolia. Just raw Node.js memory management and algorithms.",
+      "ctaSearch": "Try the Search",
+      "ctaArchitecture": "See How It Works"
+    },
+    "searchDemo": {
+      "title": "Live In-Memory Index",
+      "description": "This interface hits the Node.js RAM cache directly. Type below to test the latency.",
+      "inputPlaceholder": "Search for 'optimization', 'scaling', 'sharding'...",
+      "button": "Execute Search",
+      "status": {
+        "loading": "Traversing inverted index...",
+        "waitingSearch": "Try searching for something!",
+        "resultsFound": "Found {{count}} documents in {{time}}ms",
+        "metrics": {
+          "algo": "Algorithm: {{time}}ms",
+          "db": "DB Fetch: {{time}}ms"
+        }
+      }
+    },
+    "teaser": {
+      "text": "Want to see the logic behind the speed?",
+      "linkText": "Read the Architecture Breakdown"
+    }
+  },
+  "architecture": {
+    "meta": {
+      "title": "System Architecture | Learning Journey",
+      "description": "A deep dive into Inverted Index algorithms and memory management experiments."
+    },
+    "hero": {
+      "title": "The Learning Goal",
+      "description": "I wanted to understand what happens 'under the hood' of search engines. Instead of reaching for a library, I built this experiment to explore Data Structures, Big O notation, and the trade-offs between RAM and Disk."
+    },
+    "problemSolution": {
+      "cards": [
+        {
+          "title": "The Question",
+          "icon": "❓",
+          "text": "Why do standard database queries get slow as data grows? I wanted to see the impact of O(n) linear scans firsthand."
+        },
+        {
+          "title": "The Experiment",
+          "icon": "🧪",
+          "text": "I implemented a manual Inverted Index (HashMap) in Node.js to see if I could achieve O(1) lookup times without external tools."
+        },
+        {
+          "title": "The Lesson",
+          "icon": "💡",
+          "text": "I learned that while RAM is fast, it's scarce. I had to strictly type my data models to keep memory usage efficient."
+        }
+      ]
+    },
+    "workflow": {
+      "title": "How it Works",
+      "steps": [
+        { "step": 1, "desc": "Server boots & loads the dataset into memory (simulating a hot cache)." },
+        { "step": 2, "desc": "Tokenizer breaks titles into keywords & maps them to internal IDs." },
+        { "step": 3, "desc": "Search queries intersect these ID sets to find matches instantly." },
+        { "step": 4, "desc": "Final results are retrieved directly from the in-memory store." }
+      ]
+    },
+    "stats": {
+      "title": "Current Metrics",
+      "items": [
+        { "value": "O(1)", "label": "Complexity", "desc": "Target Goal" },
+        { "value": "< 1ms", "label": "Latency", "desc": "Observed Speed" },
+        { "value": "100%", "label": "Type Safety", "desc": "Strict TypeScript" }
+      ]
+    },
+    "authorAndContact": {
+      "title": "About Me",
+      "bio": "I'm Juan Jose, a Junior Full Stack Developer based in Spain. I am deeply curious about backend performance and architecture. I built this project to push my understanding of Node.js beyond basic CRUD applications.",
+      "status": {
+        "label": "Status",
+        "value": "OPEN TO WORK", 
+        "indicatorColor": "green"
+      },
+      "cta": {
+        "text": "Looking for a junior developer who loves to dig deep into code?",
+        "email": "juanshzglez55@gmail.com",
+        "buttonText": "Copy Email"
+      }
+    }
+  }
+}

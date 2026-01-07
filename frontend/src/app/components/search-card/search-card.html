@@ -1,0 +1,29 @@
+<div class="
+              group
+              bg-slate-800/40 
+              border border-slate-700/50 
+              rounded-xl overflow-hidden 
+              hover:border-blue-500/50 hover:bg-slate-800/60
+              transition-all duration-300
+              backdrop-blur-sm
+            ">
+    <!-- Image Area -->
+    <div class="h-48 bg-white/95 p-4 flex items-center justify-center relative">
+        <img [src]="product()?.imgUrl" class="max-h-full max-w-full object-contain mix-blend-multiply">
+        <span class="absolute top-2 right-2 bg-slate-900/90 text-white text-xs font-bold px-2 py-1 rounded">
+            £{{ product()?.price }}
+        </span>
+    </div>
+
+    <!-- Content -->
+    <div class="p-4 space-y-2">
+        <h3 class="text-sm font-semibold text-slate-200 line-clamp-2 group-hover:text-blue-300 transition-colors">
+            {{ product()?.title }}
+        </h3>
+        <div class="flex items-center justify-between text-xs text-slate-500">
+            <span>⭐ {{ product()?.stars }} ({{ product()?.reviews }})</span>
+            <a [href]="'https://amazon.co.uk/dp/' + product()?.asin" target="_blank"
+                class="text-blue-400 hover:text-blue-300 hover:underline">View -></a>
+        </div>
+    </div>
+</div>

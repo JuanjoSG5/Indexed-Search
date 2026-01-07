@@ -1,0 +1,31 @@
+<div class="relative group w-full max-w-2xl mx-auto">
+
+  <!-- The Input Field -->
+  <div class="relative flex items-center bg-slate-900 rounded-lg border border-slate-700/50 p-1 shadow-2xl">
+
+    <span class="pl-4 text-gray-500">
+      <search-icon></search-icon>
+    </span>
+
+    <input type="text" [(ngModel)]="query" (keydown.enter)="triggerSearch()" [placeholder]="placeholder()"
+      class="w-full bg-transparent border-none text-gray-200 placeholder-slate-500 focus:ring-0 px-4 py-3 outline-none" />
+
+    <!-- The "Go" Button -->
+    <button (click)="triggerSearch()"
+      class="bg-blue-600 hover:bg-blue-500 text-white px-6 py-2 rounded-md font-semibold transition-all shadow-lg shadow-blue-500/20">
+      Search
+    </button>
+  </div>
+
+  <section class="flex flex-col md:flex-row items-center justify-center gap-3 mt-6 w-full max-w-2xl mx-auto">
+    <span class="text-xs font-mono text-blue-300/70 uppercase tracking-widest whitespace-nowrap mb-1 md:mb-0">Try the demo:</span>
+    <div class="flex flex-wrap justify-center gap-3">
+    @for (example of searchExamples; track example) {
+      <example-item 
+        [label]="example"
+        (itemClick)="onClickExample($event)">
+      </example-item>
+    }
+    </div>
+  </section>
+</div>

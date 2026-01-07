@@ -1,0 +1,53 @@
+<div class="min-h-screen bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900 flex items-center justify-center px-4 py-16">
+  <div class="max-w-2xl w-full text-center">
+    <!-- 404 Illustration -->
+    <div class="mb-8">
+      <h1 class="text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300 mb-4">
+        404
+      </h1>
+      <div class="flex justify-center mb-6">
+        <sad-face></sad-face>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <h2 class="text-3xl md:text-4xl font-bold text-slate-100 mb-4">
+      Página No Encontrada
+    </h2>
+    <p class="text-lg text-slate-300 mb-8 max-w-md mx-auto">
+      Lo sentimos, la página que estás buscando no existe o ha sido movida.
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+      <a 
+        routerLink="/"
+        class="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 w-full sm:w-auto">
+        Volver al Inicio
+      </a>
+      <a 
+        routerLink="/contact"
+        class="px-8 py-3 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-lg shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 w-full sm:w-auto">
+        Contactar
+      </a>
+    </div>
+
+    <!-- Helpful Links -->+
+    <div class="mt-12 pt-8 border-t border-slate-700">
+      <p class="text-sm text-slate-400 mb-4">¿Buscabas alguna de estas páginas?</p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a routerLink="/about" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 cursor-pointer">
+          Acerca de
+        </a>
+        <span class="text-slate-600">•</span>
+        <a routerLink="/search" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 cursor-pointer">
+          Búsqueda
+        </a>
+        <span class="text-slate-600">•</span>
+        <a routerLink="/contact" class="text-blue-400 hover:text-blue-300 transition-colors duration-200 cursor-pointer">
+          Contacto
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

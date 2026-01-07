@@ -1,0 +1,22 @@
+<button
+  (click)="onClick()"
+  class="
+    inline-flex 
+    items-center 
+    gap-2 
+    px-4 py-2 
+    text-sm font-semibold text-slate-200 
+    bg-slate-800/60 
+    border border-slate-700/50 
+    rounded-lg 
+    shadow-md 
+    hover:bg-blue-600/20 hover:border-blue-500/50 hover:text-white hover:scale-105 
+    active:scale-95 
+    transition-all duration-300 
+    group 
+    cursor-pointer
+  "
+>
+  <search-icon></search-icon>
+  {{ label() }}
+</button>

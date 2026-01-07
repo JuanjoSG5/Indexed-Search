@@ -1,0 +1,108 @@
+{
+  "common": {
+    "nav": {
+      "home": "Live Demo",
+      "architecture": "Arquitectura y Benchmarks"
+    },
+    "footer": {
+      "builtWith": "Desarrollado con Angular 20, NestJS y Supabase.",
+      "copyright": "© 2025 Juan Jose Sánchez González.",
+      "links": [
+        { "label": "Código Fuente", "url": "https://github.com/your-username/repo" },
+        { "label": "LinkedIn", "url": "https://linkedin.com/in/your-profile" }
+      ]
+    }
+  },
+  "home": {
+    "meta": {
+      "title": "Indexed Search | Live Demo",
+      "description": "Demo interactiva de un índice invertido en memoria usando Node.js."
+    },
+    "hero": {
+      "badge": "Proyecto Full Stack de Demostración",
+      "h1": "Construí un Motor de Búsqueda desde Cero",
+      "subtext": "Sin ElasticSearch. Sin Algolia. Solo gestión pura de memoria en Node.js y algoritmos.",
+      "ctaSearch": "Prueba la Búsqueda",
+      "ctaArchitecture": "Descubre Cómo Funciona"
+    },
+    "searchDemo": {
+      "title": "Índice en Memoria en Vivo",
+      "description": "Esta interfaz accede directamente a la caché RAM de Node.js. Escribe abajo para comprobar la latencia.",
+      "inputPlaceholder": "Busca 'optimización', 'escalado', 'sharding'...",
+      "button": "Ejecutar Búsqueda",
+      "status": {
+        "loading": "Recorriendo el índice invertido...",
+        "waitingSearch": "¡Prueba a buscar algo!",
+        "resultsFound": "Se encontraron {{count}} documentos en {{time}}ms",
+        "metrics": {
+          "algo": "Algoritmo: {{time}}ms",
+          "db": "Consulta BD: {{time}}ms"
+        }
+      }
+    },
+    "teaser": {
+      "text": "¿Quieres ver la lógica detrás de la velocidad?",
+      "linkText": "Lee el Análisis de la Arquitectura"
+    }
+  },
+  "architecture": {
+    "meta": {
+      "title": "Arquitectura del Sistema | Viaje de Aprendizaje",
+      "description": "Una inmersión profunda en algoritmos de Índice Invertido y experimentos de gestión de memoria."
+    },
+    "hero": {
+      "title": "El Objetivo de Aprendizaje",
+      "description": "Quería entender qué sucede 'bajo el capó' de los motores de búsqueda. En lugar de usar una librería, construí este experimento para explorar Estructuras de Datos, notación Big O, y las compensaciones entre RAM y Disco."
+    },
+    "problemSolution": {
+      "cards": [
+        {
+          "title": "La Pregunta",
+          "icon": "❓",
+          "text": "¿Por qué las consultas estándar a bases de datos se vuelven lentas cuando crecen los datos? Quería ver el impacto de los escaneos lineales O(n) de primera mano."
+        },
+        {
+          "title": "El Experimento",
+          "icon": "🧪",
+          "text": "Implementé un Índice Invertido manual (HashMap) en Node.js para ver si podía lograr tiempos de búsqueda O(1) sin herramientas externas."
+        },
+        {
+          "title": "La Lección",
+          "icon": "💡",
+          "text": "Aprendí que aunque la RAM es rápida, es escasa. Tuve que tipar estrictamente mis modelos de datos para mantener el uso de memoria eficiente."
+        }
+      ]
+    },
+    "workflow": {
+      "title": "Cómo Funciona",
+      "steps": [
+        { "step": 1, "desc": "El servidor arranca y carga el conjunto de datos en memoria (simulando una caché caliente)." },
+        { "step": 2, "desc": "El tokenizador divide los títulos en palabras clave y los mapea a IDs internos." },
+        { "step": 3, "desc": "Las búsquedas cruzan estos conjuntos de IDs para encontrar coincidencias instantáneamente." },
+        { "step": 4, "desc": "Los resultados finales se recuperan directamente del almacén en memoria." }
+      ]
+    },
+    "stats": {
+      "title": "Métricas Actuales",
+      "items": [
+        { "value": "O(1)", "label": "Complejidad", "desc": "Objetivo Meta" },
+        { "value": "< 1ms", "label": "Latencia", "desc": "Velocidad Observada" },
+        { "value": "100%", "label": "Seguridad de Tipos", "desc": "TypeScript Estricto" }
+      ]
+    },
+    "authorAndContact": {
+      "title": "Sobre Mí",
+      "bio": "Soy Juan Jose, un Desarrollador Full Stack Junior en España. Tengo mucha curiosidad por el rendimiento y la arquitectura backend. Construí este proyecto para llevar mi comprensión de Node.js más allá de las aplicaciones CRUD básicas.",
+      "status": {
+        "label": "Estado",
+        "value": "OPEN TO WORK",
+        "indicatorColor": "green"
+      },
+      "cta": {
+        "text": "¿Buscas a un desarrollador junior al que le apasione profundizar en el código?",
+        "email": "juanshzglez55@gmail.com",
+        "buttonText": "Copiar Email"
+      }
+    }
+  }
+}

@@ -1,0 +1,47 @@
+<footer class="
+    w-full 
+    mt-auto 
+    relative
+    border-t border-slate-800/60
+    bg-slate-950
+    overflow-hidden
+  ">
+    
+    <!-- Ambient Glow Effect (Top Center) to blend with Home Page -->
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-1/2 h-1 bg-blue-500/20 blur-xl"></div>
+
+    <div class="max-w-6xl mx-auto px-4 py-8 relative z-10">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+
+            <div class="text-center md:text-left space-y-2">
+                <p class="text-slate-400 font-medium text-sm tracking-wide">
+                    {{ footerData()?.copyright }}
+                </p>
+                <p class="text-xs text-blue-500/80 font-mono tracking-wider uppercase">
+                   {{ footerData()?.builtWith }}
+                </p>
+            </div>
+
+            <div class="flex items-center gap-8">
+
+                <a href="{{ footerData()?.links?.[0]?.url }}" target="_blank"
+                    class="group flex items-center gap-2 text-slate-400 hover:text-white transition-colors duration-300"
+                    aria-label="GitHub">
+                    
+                    <github-icon></github-icon>
+                    
+                    <span class="text-sm border-b border-transparent group-hover:border-cyan-400 pb-0.5 transition-all duration-300">
+                      Source Code
+                    </span>
+                </a>
+
+                <a href="{{ footerData()?.links?.[1]?.url }}" target="_blank"
+                    class="text-slate-400 hover:text-blue-400 transition-all duration-300 hover:scale-110" 
+                    aria-label="LinkedIn">
+                    <linkedin-icon></linkedin-icon>
+                </a>
+
+            </div>
+        </div>
+    </div>
+</footer>

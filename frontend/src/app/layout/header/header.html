@@ -1,0 +1,93 @@
+<header class="sticky top-0 flex justify-center bg-blue-950/95 shadow-lg backdrop-blur-sm h-18 z-50 transition-all duration-300">
+
+  <div class="hidden md:block flex-1">
+    <!-- Logo Section -->
+  </div>
+  
+  <nav class="hidden md:flex items-center justify-center gap-6 px-5 py-4 h-full">
+      <a 
+        [routerLink]="[currentLang() === 'en' ? '/en' : '/es']"
+        routerLinkActive="bg-blue-700/30 shadow-lg scale-105"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="
+          text-slate-100 text-xl font-semibold 
+          px-4 py-2 
+          rounded-lg 
+          transition-all duration-300 
+          hover:bg-blue-700/20 hover:shadow-md hover:scale-105 
+          active:scale-95"
+        >
+        {{ navData()?.home }}
+      </a>
+
+      <a 
+        [routerLink]="['/' + currentLang(), 'architecture']"
+        routerLinkActive="bg-blue-700/30 shadow-lg scale-105"
+        class="
+          text-slate-100 text-xl font-semibold 
+          px-4 py-2 
+          rounded-lg 
+          transition-all duration-300 
+          hover:bg-blue-700/20 hover:shadow-md hover:scale-105 
+          active:scale-95"
+        >
+        {{ navData()?.architecture }}
+      </a>
+  </nav>
+
+  <!-- Mobile Menu Button -->
+  <div class="flex-1 flex justify-end items-center gap-4">
+
+    <!-- Language Toggle -->
+    <button 
+      (click)="toggleLanguage()"
+      class="
+        text-slate-100 text-xl font-semibold 
+        px-4 py-2 
+        rounded-lg 
+        transition-all duration-300 
+        hover:bg-blue-700/20 hover:shadow-md hover:scale-105 
+        active:scale-95"
+      >
+      {{ currentLang() === 'en' ? '🇪🇸 ES' : '🇬🇧 EN' }}
+    </button>
+
+    <button 
+      (click)="toggleMenu()"
+      class="md:hidden transform transition-all duration-300 ease-in-out cursor-pointer z-50 text-slate-100"
+      aria-label="Toggle menu">
+      @if (!isMenuOpen) {
+        <menu-icon></menu-icon>
+      } @else {
+        <x-icon></x-icon>
+      }
+    </button>
+  </div>
+
+  <!-- Mobile Navigation Menu (Overlay) -->
+  <!-- ADDED: z-50 to ensure overlay is also top level -->
+  @if (isMenuOpen) {
+    <nav 
+      class="fixed top-0 left-0 w-full h-screen bg-gradient-to-b from-slate-900/95 to-blue-950/95 backdrop-blur-md z-50 flex flex-col justify-center items-center overflow-y-auto py-20 transition-transform duration-300 ease-in-out">
+      
+      <div class="flex flex-col gap-4 my-auto">
+        <a 
+          [routerLink]="[currentLang() === 'en' ? '/en' : '/es']"
+          routerLinkActive="bg-blue-700/40 shadow-lg scale-110"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="toggleMenu()"
+          class="text-slate-100 text-2xl font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:bg-blue-700/20 hover:shadow-md hover:scale-105 active:scale-95 w-48 text-center">
+          {{ navData()?.home }}
+        </a>
+        
+        <a 
+          [routerLink]="['/' + currentLang(), 'architecture']"
+          routerLinkActive="bg-blue-700/40 shadow-lg scale-110"
+          (click)="toggleMenu()"
+          class="text-slate-100 text-2xl font-semibold px-6 py-3 rounded-lg transition-all duration-300 hover:bg-blue-700/20 hover:shadow-md hover:scale-105 active:scale-95 w-48 text-center">
+          {{ navData()?.architecture }}
+        </a>
+      </div>
+    </nav>
+  }
+</header>
