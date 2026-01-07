@@ -8,8 +8,14 @@
       "builtWith": "Desarrollado con Angular 20, NestJS y Supabase.",
       "copyright": "© 2025 Juan Jose Sánchez González.",
       "links": [
-        { "label": "Código Fuente", "url": "https://github.com/your-username/repo" },
-        { "label": "LinkedIn", "url": "https://linkedin.com/in/your-profile" }
+        {
+          "label": "Código Fuente",
+          "url": "https://github.com/JuanjoSG5/Indexed-Search"
+        },
+        {
+          "label": "LinkedIn",
+          "url": "https://www.linkedin.com/in/juanjosesanchezglez/"
+        }
       ]
     }
   },
@@ -76,18 +82,42 @@
     "workflow": {
       "title": "Cómo Funciona",
       "steps": [
-        { "step": 1, "desc": "El servidor arranca y carga el conjunto de datos en memoria (simulando una caché caliente)." },
-        { "step": 2, "desc": "El tokenizador divide los títulos en palabras clave y los mapea a IDs internos." },
-        { "step": 3, "desc": "Las búsquedas cruzan estos conjuntos de IDs para encontrar coincidencias instantáneamente." },
-        { "step": 4, "desc": "Los resultados finales se recuperan directamente del almacén en memoria." }
+        {
+          "step": 1,
+          "desc": "El servidor arranca y carga el conjunto de datos en memoria (simulando una caché caliente)."
+        },
+        {
+          "step": 2,
+          "desc": "El tokenizador divide los títulos en palabras clave y los mapea a IDs internos."
+        },
+        {
+          "step": 3,
+          "desc": "Las búsquedas cruzan estos conjuntos de IDs para encontrar coincidencias instantáneamente."
+        },
+        {
+          "step": 4,
+          "desc": "Los resultados finales se recuperan directamente del almacén en memoria."
+        }
       ]
     },
     "stats": {
       "title": "Métricas Actuales",
       "items": [
-        { "value": "O(1)", "label": "Complejidad", "desc": "Objetivo Meta" },
-        { "value": "< 1ms", "label": "Latencia", "desc": "Velocidad Observada" },
-        { "value": "100%", "label": "Seguridad de Tipos", "desc": "TypeScript Estricto" }
+        {
+          "value": "O(1)",
+          "label": "Complejidad",
+          "desc": "Objetivo Meta"
+        },
+        {
+          "value": "< 1ms",
+          "label": "Latencia",
+          "desc": "Velocidad Observada"
+        },
+        {
+          "value": "100%",
+          "label": "Seguridad de Tipos",
+          "desc": "TypeScript Estricto"
+        }
       ]
     },
     "authorAndContact": {
