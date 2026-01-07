@@ -18,8 +18,6 @@ export class ProductService implements OnApplicationBootstrap {
   // 3. Scores for ranking
   private productScores: Float32Array;
 
-  // 4. EMERGENCY STORE: Holds the full object because DB is dead
-  // We will pull the final data from here instead of Postgres
   private fullDataStorage: Product[] = []; 
   
   public isReady: boolean = false;
@@ -51,8 +49,6 @@ export class ProductService implements OnApplicationBootstrap {
     this.logger.log(`🚀 Loading Data from Local JSON due to database issues...`);
 
     try {
-      // --- EMERGENCY BYPASS START ---
-      // This looks for 'seed.json' in the root folder of your project
       const filePath = path.join(process.cwd(), 'data/csvjson.json');
       
       if (!fs.existsSync(filePath)) {
@@ -112,7 +108,6 @@ export class ProductService implements OnApplicationBootstrap {
             this.progress = Math.round((internalId / products.length) * 100);
         }
       }
-      // --- EMERGENCY BYPASS END ---
 
     } catch (error) {
         this.logger.error("CRITICAL: Failed to load JSON", error);
