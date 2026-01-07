@@ -86,8 +86,8 @@
       "title": "Current Metrics",
       "items": [
         { "value": "O(1)", "label": "Complexity", "desc": "Target Goal" },
-        { "value": "< 1ms", "label": "Latency", "desc": "Observed Speed" },
-        { "value": "100%", "label": "Type Safety", "desc": "Strict TypeScript" }
+        { "value": "< 1ms", "label": "Latency", "desc": "In Memory Search" },
+        { "value": "1M+", "label": "Indexed Records", "desc": "Stress Tested" }
       ]
     },
     "authorAndContact": {

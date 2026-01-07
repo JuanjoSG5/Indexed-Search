@@ -111,12 +111,12 @@
         {
           "value": "< 1ms",
           "label": "Latencia",
-          "desc": "Velocidad Observada"
+          "desc": "Búsqueda en Memoria"
         },
         {
-          "value": "100%",
-          "label": "Seguridad de Tipos",
-          "desc": "TypeScript Estricto"
+          "value": "1M+",
+          "label": "Registros Indexados",
+          "desc": "Probado Bajo Estrés"
         }
       ]
     },
