@@ -105,7 +105,11 @@ export class ProductService implements OnApplicationBootstrap {
         
         // Update progress occasionally
         if (internalId % 5000 === 0) {
-            this.progress = Math.round((internalId / products.length) * 100);
+          this.progress = Math.round((internalId / products.length) * 100);
+          
+          await new Promise(resolve => setTimeout(resolve)); 
+          
+          this.logger.log(`⏳ Indexing progress: ${this.progress}% | RAM: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`);
         }
       }
 

@@ -90,7 +90,7 @@ This optimization allowed the successful deployment of a **500,000-rows demo** o
 
 *   **I/O Bottleneck:** Migrated from offset-based pagination to **Keyset Pagination**, reducing database ingestion time by 93%.
 *   **Memory Pressure:** Identified that synchronous processing was causing **Event Loop Starvation**, preventing the Node.js Garbage Collector from executing. 
-*   **The Solution:** Implemented a **Micro-task yielding strategy** (using `setTimeout`) every 5k records. This allowed the GC to reclaim heap space during the ingestion process.
+*   **The Solution:** Implemented a **Macro-task yielding strategy** (using `setTimeout`) every 5k records. This allowed the GC to reclaim heap space during the ingestion process.
  
 **Impact:** 
 *   **Boot time:** 214s → 14.99s.
