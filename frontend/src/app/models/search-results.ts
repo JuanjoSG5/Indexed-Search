@@ -1,7 +1,7 @@
 export interface SearchItem {
     asin: string; 
     title: string;
-    imgUrl: string;
+    img_url: string;
     price: number;
     stars: number;
     reviews: number;

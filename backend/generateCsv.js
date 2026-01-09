@@ -23,16 +23,14 @@ async function processCsv() {
       headers = line.split(','); 
       
       // OPTIONAL: If you want to drop columns, do it logic here
-      // For now, let's assume we just write the clean line
       output.write(line + '\n');
       count++;
       continue;
     }
 
-    // 2. Stop at 1 Million
+    // 2. Stop at your row limit
     if (count > ROW_LIMIT) break;
 
-    // 3. Write row
     output.write(line + '\n');
     count++;
     

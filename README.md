@@ -99,7 +99,7 @@ This optimization allowed the successful deployment of a **500,000-rows demo** o
 *   **Memory Pressure:** Identified that synchronous processing was causing **Event Loop Starvation**, preventing the Node.js Garbage Collector from executing. 
 *   **The Solution:** Implemented a **Macro-task yielding strategy** (using `setTimeout`) every 5k records. This allowed the GC to reclaim heap space during the ingestion process.
  
-**Impact:** 
+**Impact (for 500K items):** 
 *   **Boot time:** 214s → 14.99s.
 *   **Heap Stability:** Peak memory dropped from 287MB to 175MB.
 

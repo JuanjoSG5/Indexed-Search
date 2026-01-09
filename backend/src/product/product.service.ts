@@ -2,8 +2,8 @@ import { Injectable, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Product } from './entities/product.entity.js';
-import * as fs from 'fs'; // <--- NEW IMPORT
-import * as path from 'path'; // <--- NEW IMPORT
+import * as fs from 'fs';
+import * as path from 'path'; 
 
 @Injectable()
 export class ProductService implements OnApplicationBootstrap {
@@ -184,7 +184,7 @@ export class ProductService implements OnApplicationBootstrap {
         perf: {
             total: `${totalTime.toFixed(2)}ms`,
             algo: `${algoTime.toFixed(3)}ms`,
-            db: `${dbTime.toFixed(2)}ms` // This will be very fast now (0.01ms), effectively 0
+            db: `${dbTime.toFixed(2)}ms` 
         },
         query: query
       },
