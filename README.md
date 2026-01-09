@@ -1,7 +1,7 @@
 # 🚀 Performance Benchmarks
 
 > **⚠️ Live Demo Context:**
-> The real-time latency metrics displayed in the demo UI reflect the current **50,000-record JSON snapshot** used for stability.
+> The real-time latency metrics displayed in the demo UI reflect the current **500,000-record of the 1M records** for stability purposes.
 >
 > The benchmarks below (Points 1-3) demonstrate the system's capabilities under full load, tested against the complete **1,000,000-record dataset**.
 
