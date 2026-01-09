@@ -1,25 +1,21 @@
 import { Injectable, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Product } from './entities/product.entity.js';
-import * as fs from 'fs';
-import * as path from 'path'; 
 
 @Injectable()
 export class ProductService implements OnApplicationBootstrap {
   private readonly logger = new Logger(ProductService.name);
 
-  // 1. Map Index -> ASIN
+  // 1. Map Internal ID -> ASIN (String)
   private productsMap: string[] = [];
   
-  // 2. Map Token -> Array of Indices
+  // 2. Map Word -> Array of Internal IDs
   private invertedIndex = new Map<string, number[]>();
   
-  // 3. Scores for ranking
+  // 3. Float32Array for memory-efficient scoring
   private productScores: Float32Array;
 
-  private fullDataStorage: Product[] = []; 
-  
   public isReady: boolean = false;
   public progress: number = 0;
 
@@ -28,103 +24,101 @@ export class ProductService implements OnApplicationBootstrap {
     private readonly productRepository: Repository<Product>,
   ) {}
 
+  // Non-blocking startup for Render/Production
   onApplicationBootstrap() {
     this.buildInvertedIndex().catch(err => {
       this.logger.error("❌ Indexing failed", err);
     });
   }
 
-   async buildInvertedIndex() {
+  async buildInvertedIndex() {
     const start = Date.now();
-    // Reset everything
+    // Default to 500k items if not set in env
+    const MAX_ITEMS = process.env.MAX_INDEX_ITEMS ? parseInt(process.env.MAX_INDEX_ITEMS) : 500000;
+    
+    // Reset State
     this.isReady = false;
     this.productsMap = [];
-    this.fullDataStorage = []; // Reset storage
     this.invertedIndex.clear();
-    
-    // We default to a safe number for the Float32Array
-    const ESTIMATED_SIZE = 50000;
-    this.productScores = new Float32Array(ESTIMATED_SIZE);
-    
-    this.logger.log(`🚀 Loading Data from Local JSON due to database issues...`);
+    this.productScores = new Float32Array(MAX_ITEMS);
+
+    const BATCH_SIZE = 10000; 
+    let lastAsin = ""; 
 
     try {
-      const filePath = path.join(process.cwd(), 'data/csvjson.json');
-      
-      if (!fs.existsSync(filePath)) {
-        throw new Error(`seed.json not found at ${filePath}`);
-      }
+      while (this.productsMap.length < MAX_ITEMS) {
+        // 1. USE RAW QUERY (getRawMany) - Much faster than loading entire entities
+        const products = await this.productRepository
+          .createQueryBuilder('product')
+          .select(['product.asin', 'product.title', 'product.stars', 'product.reviews']) 
+          .where('product.asin > :lastAsin', { lastAsin })
+          .orderBy('product.asin', 'ASC')
+          .limit(BATCH_SIZE)
+          .getRawMany(); 
 
-      const rawData = fs.readFileSync(filePath, 'utf-8');
-      const products = JSON.parse(rawData); // This is your array of items
+        if (products.length === 0) break;
 
-      this.logger.log(`📂 Found ${products.length} items in file. Indexing...`);
+        for (const product of products) {
+          // Handle Raw TypeORM prefixes (e.g. product_asin vs asin)
+          const asin: string = product.asin || product.product_asin;
+          const title: string = product.title || product.product_title;
+          
+          if (!title || !asin) continue;
 
-      // Resize score array if needed
-      if (products.length > ESTIMATED_SIZE) {
-        this.productScores = new Float32Array(products.length);
-      }
+          // Store mapping (Index -> ASIN)
+          this.productsMap.push(asin);
+          const internalId = this.productsMap.length - 1;
 
-      for (const product of products) {
-        // Handle potential different field names from JSON export
-        const asin: string = product.asin || product.product_asin;
-        const title: string = product.title || product.product_title;
+          // --- SCORING LOGIC ---
+          const stars = Number(product.stars || product.product_stars) || 0;
+          const reviews = Number(product.reviews || product.product_reviews) || 0;
 
-        if (!title || !asin) continue;
+          // Logarithmic ranking: 5 stars with 10k reviews > 5 stars with 1 review
+          const score = stars + (Math.log1p(reviews) * 0.5);
+          this.productScores[internalId] = score; 
 
-        // 1. Store the ID mapping
-        this.productsMap.push(asin);
-        const internalId = this.productsMap.length - 1;
+          // --- TOKENIZATION ---
+          const words = title.toLowerCase().match(/[a-z0-9]+/g);
+          if (!words) continue;
 
-        // 2. Store the FULL object (For hydration later)
-        this.fullDataStorage.push(product);
+          const uniqueWords = new Set(words);
 
-        // 3. Calculate Score (Same logic as before)
-        const stars = parseFloat(product.stars) || 0;
-        const reviews = typeof product.reviews === 'number' ? product.reviews : parseInt(product.reviews) || 0;
-        const score = stars + (Math.log1p(reviews) * 0.5);
-        this.productScores[internalId] = score; 
+          // Update Inverted Index
+          for (const word of uniqueWords) {
+            if (word.length < 2) continue; // Skiping single letters
 
-        // 4. Tokenize
-        const words = title.toLowerCase().match(/[a-z0-9]+/g);
-        if (!words) continue;
-
-        const uniqueWords = new Set(words);
-
-        // 5. Update Inverted Index
-        for (const word of uniqueWords) {
-          if (word.length < 2) continue;
-
-          let list = this.invertedIndex.get(word);
-          if (!list) {
-            list = [];
-            this.invertedIndex.set(word, list);
+            let list = this.invertedIndex.get(word);
+            if (!list) {
+              list = [];
+              this.invertedIndex.set(word, list);
+            }
+            list.push(internalId);
           }
-          list.push(internalId);
+          
+          lastAsin = asin;
         }
+
+        // Update Progress
+        this.progress = Math.round((this.productsMap.length / MAX_ITEMS) * 100);
         
-        // Update progress occasionally
-        if (internalId % 5000 === 0) {
-          this.progress = Math.round((internalId / products.length) * 100);
-          
-          await new Promise(resolve => setTimeout(resolve)); 
-          
-          this.logger.log(`⏳ Indexing progress: ${this.progress}% | RAM: ${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`);
+        // Log memory usage and yield to event loop every 50000 records
+        if (this.productsMap.length % 50000 === 0) {
+           const mem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+           this.logger.log(`📦 Indexed ${this.productsMap.length} items... (RAM: ${mem} MB)`);
+           
+           // Macro task yielding - Pause for 1ms to let the Event Loop & Garbage Collector run
+           await new Promise(resolve => setTimeout(resolve, 1));
         }
       }
-
-    } catch (error) {
-        this.logger.error("CRITICAL: Failed to load JSON", error);
-        return;
+    } catch (e) {
+      this.logger.error("Error building index", e);
     }
 
     this.isReady = true;
-    this.progress = 100;
-    
     const duration = (Date.now() - start) / 1000;
-    const ramUsage = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+    const finalRam = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
     
-    this.logger.log(`✅ Index Ready! Items: ${this.productsMap.length} | Time: ${duration.toFixed(2)}s | RAM: ${ramUsage} MB`);
+    this.logger.log(`✅ Index Ready! Items: ${this.productsMap.length} | Time: ${duration.toFixed(2)}s | RAM: ${finalRam} MB`);
   }
 
   getStatus() {
@@ -136,7 +130,7 @@ export class ProductService implements OnApplicationBootstrap {
   }
 
   async searchProducts(query: string, paginationLimit: number = 20) {
-    if (!this.isReady) throw new Error('Index is still building...');
+    if (!this.isReady) throw new Error('Index is still building, please wait.');
     if (!query) return [];
 
     const algorithmStartTimer = performance.now();
@@ -146,34 +140,58 @@ export class ProductService implements OnApplicationBootstrap {
       .replace(/[^a-z0-9 ]/g, '')
       .split(' ')
       .filter(w => w.length > 1);
-    
+
     if (terms.length === 0) return [];
 
+    // 1. Sort terms by "Rarest Word First" (to minimize intersection size)
     const sortedTerms = terms
       .map(term => ({ term, ids: this.invertedIndex.get(term) || [] }))
       .sort((a, b) => a.ids.length - b.ids.length);
 
+    // If the rarest word isn't found then no results exist
+    if (sortedTerms[0].ids.length === 0) return { meta: { total: 0 }, data: [] };
+
+    // 2. Initialize the result with the smallest list size
     let resultIds = [...sortedTerms[0].ids];
 
+    // 3. Intersect with other lists
     for (let i = 1; i < sortedTerms.length; i++) {
       const nextIdSet = new Set(sortedTerms[i].ids);
       resultIds = resultIds.filter(id => nextIdSet.has(id));
       if (resultIds.length === 0) break;
     }
 
+    // 4. SORT BY SCORE (Ranking based on the previous scoring logic => Reviews > Stars)
+    resultIds.sort((a, b) => this.productScores[b] - this.productScores[a]);
+
     const totalResults = resultIds.length;
     const pagedIds = resultIds.slice(0, paginationLimit); 
 
     const fetchStartTimer = performance.now();
 
-    // --- Data Hydration (RAM instead of DB) ---
-    // EMERGENCY CHANGE: We map directly from the fullDataStorage array
-    // This mimics the "DB Fetch" but is instant (and reliable)
-    
-    const completedProducts = pagedIds.map(id => this.fullDataStorage[id]);
+    // --- Data Hydration (Fetching all the results from DB) ---
+    let completedProducts: Product[] = [];
+
+    if (pagedIds.length > 0) {
+      // Convert the generated IDs (numbers) back to ASINs (strings)
+      const realAsins = pagedIds.map(id => this.productsMap[id]);
+
+      // Fetch only the needed items from Supabase
+      const unsortedProducts = await this.productRepository.find({
+        where: { asin: In(realAsins) },
+      });
+
+      // Maintain the sorted order from our algorithm
+      // (DB returns items in arbitrary order, we must map them back)
+      const productMap = new Map(unsortedProducts.map(p => [p.asin, p]));
+      completedProducts = realAsins
+        .map(asin => productMap.get(asin))
+        .filter(p => !!p); // Filter out any inconsistencies
+    }
 
     const endTimers = performance.now();
 
+    // Performance Metrics that are used in the frontend to display search time
     const algoTime = fetchStartTimer - algorithmStartTimer; 
     const dbTime = endTimers - fetchStartTimer;   
     const totalTime = endTimers - algorithmStartTimer;
@@ -184,7 +202,7 @@ export class ProductService implements OnApplicationBootstrap {
         perf: {
             total: `${totalTime.toFixed(2)}ms`,
             algo: `${algoTime.toFixed(3)}ms`,
-            db: `${dbTime.toFixed(2)}ms` 
+            db: `${dbTime.toFixed(2)}ms`
         },
         query: query
       },
