@@ -2,6 +2,8 @@ import { Injectable, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, In } from 'typeorm';
 import { Product } from './entities/product.entity.js';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class ProductService implements OnApplicationBootstrap {
@@ -18,6 +20,7 @@ export class ProductService implements OnApplicationBootstrap {
 
   public isReady: boolean = false;
   public progress: number = 0;
+  private readonly SNAPSHOT_FILE = path.resolve('index_snapshot.json');
 
   constructor(
     @InjectRepository(Product)
@@ -25,10 +28,36 @@ export class ProductService implements OnApplicationBootstrap {
   ) {}
 
   // Non-blocking startup for Render/Production
-  onApplicationBootstrap() {
+  async onApplicationBootstrap() {
+    if (fs.existsSync(this.SNAPSHOT_FILE)) {
+      this.logger.log('Loading index snapshot from disk...');
+      try {
+        await this.loadFromSnapshot();
+        this.logger.log('Snapshot loaded successfully!');
+        return;
+      } catch (err) {
+        this.logger.error("Failed to load snapshot", err);
+      }
+    }
     this.buildInvertedIndex().catch(err => {
-      this.logger.error("❌ Indexing failed", err);
+      this.logger.error("Indexing failed", err);
     });
+  }
+
+  private async loadFromSnapshot() {
+    const start = Date.now();
+
+    const rawData = fs.readFileSync(this.SNAPSHOT_FILE, 'utf-8');
+    const snapshot = JSON.parse(rawData);
+
+    this.productsMap = snapshot.map;
+    this.invertedIndex = new Map(Object.entries(snapshot.index));
+    this.productScores = Float32Array.from(snapshot.scores);
+
+    this.isReady = true;
+    const duration = (Date.now() - start) / 1000;
+    const mem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+    this.logger.log(`Index Loaded from Snapshot! Items: ${this.productsMap.length} | Time: ${duration.toFixed(2)}s | RAM: ${mem} MB`);
   }
 
   async buildInvertedIndex() {
@@ -117,8 +146,22 @@ export class ProductService implements OnApplicationBootstrap {
     this.isReady = true;
     const duration = (Date.now() - start) / 1000;
     const finalRam = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+
+    if (process.env.NODE_ENV !== 'production' || process.env.SAVE_SNAPSHOT === 'true') {
+      await this.saveSnapshot();
+      this.logger.log(`✅ Index snapshot saved to disk (${this.SNAPSHOT_FILE})`);
+    }
     
     this.logger.log(`✅ Index Ready! Items: ${this.productsMap.length} | Time: ${duration.toFixed(2)}s | RAM: ${finalRam} MB`);
+  }
+
+  private async saveSnapshot() {
+    const snapshot ={
+      map: this.productsMap,
+      index: Object.fromEntries(this.invertedIndex),
+      scores: Array.from(this.productScores)
+    }
+    fs.writeFileSync('index_snapshot.json', JSON.stringify(snapshot));
   }
 
   getStatus() {

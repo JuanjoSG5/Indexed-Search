@@ -22,7 +22,7 @@ import { AppService } from './app.service.js';
         extra: {
           family: 4,
           min: 1,
-          max: 4,
+          max: 10,
           idleTimeoutMillis: 30000,
           connectionTimeoutMillis: 30000,
         },
