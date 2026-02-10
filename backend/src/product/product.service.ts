@@ -4,6 +4,7 @@ import { Repository, In } from 'typeorm';
 import { Product } from './entities/product.entity.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as zlib from 'zlib';
 
 @Injectable()
 export class ProductService implements OnApplicationBootstrap {
@@ -20,7 +21,7 @@ export class ProductService implements OnApplicationBootstrap {
 
   public isReady: boolean = false;
   public progress: number = 0;
-  private readonly SNAPSHOT_FILE = path.resolve('index_snapshot.json');
+  private readonly SNAPSHOT_FILE = path.resolve('index_snapshot.json.gz');
 
   constructor(
     @InjectRepository(Product)
@@ -47,7 +48,10 @@ export class ProductService implements OnApplicationBootstrap {
   private async loadFromSnapshot() {
     const start = Date.now();
 
-    const rawData = fs.readFileSync(this.SNAPSHOT_FILE, 'utf-8');
+    const compressedBuffer = fs.readFileSync(this.SNAPSHOT_FILE);
+
+    const rawData = zlib.gunzipSync(compressedBuffer).toString('utf-8');
+
     const snapshot = JSON.parse(rawData);
 
     this.productsMap = snapshot.map;
@@ -161,7 +165,9 @@ export class ProductService implements OnApplicationBootstrap {
       index: Object.fromEntries(this.invertedIndex),
       scores: Array.from(this.productScores)
     }
-    fs.writeFileSync('index_snapshot.json', JSON.stringify(snapshot));
+    const jsonStringify = JSON.stringify(snapshot);
+    const compressed = zlib.gzipSync(jsonStringify);
+    fs.writeFileSync(this.SNAPSHOT_FILE, compressed);
   }
 
   getStatus() {
