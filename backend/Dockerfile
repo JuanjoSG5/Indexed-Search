@@ -10,13 +10,13 @@ WORKDIR /app
 COPY package*.json ./
 
 # Instalamos dependencias
-RUN npm ci
+RUN pnpm ci
 
 # Copiamos TODO el código fuente (incluyendo el snapshot .json.gz si existe)
 COPY . .
 
 # Compilamos la app (NestJS genera la carpeta /dist)
-RUN npm run build
+RUN pnpm run build
 
 # --- ETAPA 2: PRODUCCIÓN ---
 FROM node:20-alpine
