@@ -1,14 +1,18 @@
-# .github/workflows/keep-alive.yml
 name: Keep Supabase Alive
 on:
   schedule:
-    - cron: '0 0 * * *' # Medianoche cada día
-  workflow_dispatch:      # Permite ejecutarlo manualmente desde la web de GitHub para probar
+    # Se ejecuta todos los días a las 00:00 UTC
+    # Supabase se duerme tras 1 semana, así que 1 vez al día sobra.
+    - cron: '0 0 * * *'
+  
+  # Esto te permite darle al botón "Run workflow" manualmente para probarlo
+  workflow_dispatch:
 
 jobs:
-  ping:
+  ping-health-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping API
-        # Cambia esta URL por la que te de Railway al final
-        run: curl -I https://tu-proyecto-en-railway.up.railway.app/api/health
+      - name: Ping Railway Health Endpoint
+        # Reemplaza LA_URL_DE_ABAJO por tu dominio real de Railway
+        # Asegúrate de que termina en /health (o la ruta que hayas puesto en el controller)
+        run: curl -f backend-production-a32d.up.railway.app/status
