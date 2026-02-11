@@ -10,7 +10,7 @@ COPY package*.json ./
 RUN pnpm install
 
 COPY . .
-
+RUN ls -la
 RUN pnpm run build
 
 FROM node:20-alpine
@@ -21,7 +21,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
-COPY --from=builder /app/index-snapshot.json.gz ./index-snapshot.json.gz
+COPY --from=builder /app/package.json /app/index-snapshot.json.g[z] ./
 
 ENV NODE_OPTIONS="--max-old-space-size=450"
 
