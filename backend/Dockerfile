@@ -21,7 +21,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package*.json ./
 
-COPY --from=builder /app/package.json /app/index-snapshot.json.g[z] ./
+COPY --from=builder /app/package.json /app/index_snapshot.json.g[z] ./
 
 ENV NODE_OPTIONS="--max-old-space-size=450"
 
