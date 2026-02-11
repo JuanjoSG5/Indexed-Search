@@ -5,6 +5,7 @@ import { Product } from './entities/product.entity.js';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as zlib from 'zlib';
+import * as readline from 'readline';
 
 @Injectable()
 export class ProductService implements OnApplicationBootstrap {
@@ -21,7 +22,7 @@ export class ProductService implements OnApplicationBootstrap {
 
   public isReady: boolean = false;
   public progress: number = 0;
-  private readonly SNAPSHOT_FILE = path.resolve('index_snapshot.json.gz');
+  private readonly SNAPSHOT_FILE = path.resolve('index-snapshot.jsonl.gz');
 
   constructor(
     @InjectRepository(Product)
@@ -47,21 +48,72 @@ export class ProductService implements OnApplicationBootstrap {
 
   private async loadFromSnapshot() {
     const start = Date.now();
+    this.logger.log(`📦 Streaming snapshot from ${this.SNAPSHOT_FILE}...`);
 
-    const compressedBuffer = fs.readFileSync(this.SNAPSHOT_FILE);
+    const fileStream = fs.createReadStream(this.SNAPSHOT_FILE);
+    const gunzip = zlib.createGunzip();
+    const lineReader = readline.createInterface({
+      input: fileStream.pipe(gunzip),
+      crlfDelay: Infinity,
+    });
 
-    const rawData = zlib.gunzipSync(compressedBuffer).toString('utf-8');
+    this.invertedIndex.clear();
+    
+    for await (const line of lineReader) {
+      const data = JSON.parse(line);
 
-    const snapshot = JSON.parse(rawData);
-
-    this.productsMap = snapshot.map;
-    this.invertedIndex = new Map(Object.entries(snapshot.index));
-    this.productScores = Float32Array.from(snapshot.scores);
+      // We detect the type of data by a "t" (type) property
+      if (data.t === 'scores') {
+        this.productScores = new Float32Array(data.d);
+      } 
+      else if (data.t === 'map') {
+        this.productsMap = data.d;
+      } 
+      else if (data.w) { // This is an instance of the inverted Index: { w: "word", i: [1,2] }
+        this.invertedIndex.set(data.w, data.i);
+      }
+    }
 
     this.isReady = true;
     const duration = (Date.now() - start) / 1000;
-    const mem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
-    this.logger.log(`Index Loaded from Snapshot! Items: ${this.productsMap.length} | Time: ${duration.toFixed(2)}s | RAM: ${mem} MB`);
+    const ram = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
+    this.logger.log(`🚀 Stream Loaded! Items: ${this.productsMap.length} | Time: ${duration}s | RAM: ${ram} MB`);
+  }
+
+  // Cambia la firma para que sea async
+  private async saveSnapshot() {
+    this.logger.log("💾 Streaming snapshot to disk (NDJSON)...");
+    
+    return new Promise<void>((resolve, reject) => {
+      const fileStream = fs.createWriteStream(this.SNAPSHOT_FILE);
+      const gzip = zlib.createGzip();
+      
+      // Manejo de errores
+      fileStream.on('error', (err) => reject(err));
+      gzip.on('error', (err) => reject(err));
+
+      // Importante: Esperar a que termine de verdad
+      fileStream.on('finish', () => {
+        this.logger.log(`✅ Snapshot saved and flushed to disk: ${this.SNAPSHOT_FILE}`);
+        resolve();
+      });
+
+      // Conectamos la tubería
+      gzip.pipe(fileStream);
+
+      // 1. Scores
+      gzip.write(JSON.stringify({ t: 'scores', d: Array.from(this.productScores) }) + '\n');
+
+      // 2. Map
+      gzip.write(JSON.stringify({ t: 'map', d: this.productsMap }) + '\n');
+
+      // 3. Index
+      for (const [word, ids] of this.invertedIndex) {
+        gzip.write(JSON.stringify({ w: word, i: ids }) + '\n');
+      }
+
+      gzip.end(); 
+    });
   }
 
   async buildInvertedIndex() {
@@ -80,7 +132,7 @@ export class ProductService implements OnApplicationBootstrap {
 
     try {
       while (this.productsMap.length < MAX_ITEMS) {
-        // 1. USE RAW QUERY (getRawMany) - Much faster than loading entire entities
+        // 1. USE RAW QUERY (getRawMany) - Much faster than loading entire entities with TypeORM
         const products = await this.productRepository
           .createQueryBuilder('product')
           .select(['product.asin', 'product.title', 'product.stars', 'product.reviews']) 
@@ -157,17 +209,6 @@ export class ProductService implements OnApplicationBootstrap {
     }
     
     this.logger.log(`✅ Index Ready! Items: ${this.productsMap.length} | Time: ${duration.toFixed(2)}s | RAM: ${finalRam} MB`);
-  }
-
-  private async saveSnapshot() {
-    const snapshot ={
-      map: this.productsMap,
-      index: Object.fromEntries(this.invertedIndex),
-      scores: Array.from(this.productScores)
-    }
-    const jsonStringify = JSON.stringify(snapshot);
-    const compressed = zlib.gzipSync(jsonStringify);
-    fs.writeFileSync(this.SNAPSHOT_FILE, compressed);
   }
 
   getStatus() {
