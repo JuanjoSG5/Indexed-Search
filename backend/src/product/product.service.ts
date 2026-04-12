@@ -189,7 +189,7 @@ export class ProductService implements OnApplicationBootstrap {
         // Log memory usage and yield to event loop every 50000 records
         if (this.productsMap.length % 50000 === 0) {
            const mem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
-           this.logger.log(`📦 Indexed ${this.productsMap.length} items... (RAM: ${mem} MB)`);
+           this.logger.log(` Indexed ${this.productsMap.length} items... (RAM: ${mem} MB)`);
            
            // Macro task yielding - Pause for 1ms to let the Event Loop & Garbage Collector run
            await new Promise(resolve => setTimeout(resolve, 1));
