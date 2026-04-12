@@ -5,8 +5,6 @@ import { ProductModule } from './product/product.module.js';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { Product } from './product/entities/product.entity.js';
-import { ProductController } from './product/product.controller.js';
-import { ProductService } from './product/product.service.js';
 
 @Module({
   imports: [
@@ -34,7 +32,7 @@ import { ProductService } from './product/product.service.js';
     }),
     ProductModule,
   ],
-  controllers: [AppController, ProductController],
-  providers: [AppService, ProductService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
