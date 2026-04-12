@@ -1,18 +1,14 @@
-name: Keep Supabase Alive
+name: Keep Render Alive
 on:
   schedule:
-    # Se ejecuta todos los días a las 00:00 UTC
-    # Supabase se duerme tras 1 semana, así que 1 vez al día sobra.
-    - cron: '0 0 * * *'
+    # Se ejecuta cada 14 minutos para evitar que Render se duerma
+    - cron: '*/14 * * * *'
   
-  # Esto te permite darle al botón "Run workflow" manualmente para probarlo
   workflow_dispatch:
 
 jobs:
   ping-health-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Railway Health Endpoint
-        # Reemplaza LA_URL_DE_ABAJO por tu dominio real de Railway
-        # Asegúrate de que termina en /health (o la ruta que hayas puesto en el controller)
-        run: curl -f backend-production-a32d.up.railway.app/status
+      - name: Ping Render Health Endpoint
+        run: curl -f https://indexed-search.onrender.com/status

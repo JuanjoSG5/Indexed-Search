@@ -1,4 +1,4 @@
 export const environment = {
   production: false,
-  apiUrl: 'https://backend-production-a32d.up.railway.app' // Your Render Backend
+  apiUrl: 'https://indexed-search.onrender.com' // Your Render Backend
 };
