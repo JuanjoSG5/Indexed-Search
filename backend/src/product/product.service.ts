@@ -18,7 +18,7 @@ export class ProductService implements OnApplicationBootstrap {
   private invertedIndex = new Map<string, number[]>();
   
   // 3. Float32Array for memory-efficient scoring
-  private productScores: Float32Array;
+  private productScores: Float32Array = new Float32Array(0);
 
   public isReady: boolean = false;
   public progress: number = 0;
