@@ -132,7 +132,7 @@ export class ProductService implements OnApplicationBootstrap {
 
     try {
       while (this.productsMap.length < MAX_ITEMS) {
-        // 1. USE RAW QUERY (getRawMany) - Much faster than loading entire entities with TypeORM
+        // 1. Using getRawMany since it's much faster than loading entire entities with TypeORM
         const products = await this.productRepository
           .createQueryBuilder('product')
           .select(['product.asin', 'product.title', 'product.stars', 'product.reviews']) 
@@ -154,7 +154,7 @@ export class ProductService implements OnApplicationBootstrap {
           this.productsMap.push(asin);
           const internalId = this.productsMap.length - 1;
 
-          // --- SCORING LOGIC ---
+          // Declaring the variables for the scoring logic
           const stars = Number(product.stars || product.product_stars) || 0;
           const reviews = Number(product.reviews || product.product_reviews) || 0;
 
@@ -162,13 +162,14 @@ export class ProductService implements OnApplicationBootstrap {
           const score = stars + (Math.log1p(reviews) * 0.5);
           this.productScores[internalId] = score; 
 
-          // --- TOKENIZATION ---
+          // We clean the title and split into words (basic tokenization)
           const words = title.toLowerCase().match(/[a-z0-9]+/g);
           if (!words) continue;
 
+          // Deleting duplicates
           const uniqueWords = new Set(words);
 
-          // Update Inverted Index
+          // We build the inverted index: for each word, we store the internal ID of the product
           for (const word of uniqueWords) {
             if (word.length < 2) continue; // Skiping single letters
 
@@ -191,7 +192,7 @@ export class ProductService implements OnApplicationBootstrap {
            const mem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
            this.logger.log(` Indexed ${this.productsMap.length} items... (RAM: ${mem} MB)`);
            
-           // Macro task yielding - Pause for 1ms to let the Event Loop & Garbage Collector run
+           // Macro task yielding: small pause for 1ms to let the Event Loop & Garbage Collector run
            await new Promise(resolve => setTimeout(resolve, 1));
         }
       }
@@ -199,10 +200,12 @@ export class ProductService implements OnApplicationBootstrap {
       this.logger.error("Error building index", e);
     }
 
+    // Declaration of building duration and final RAM usage
     this.isReady = true;
     const duration = (Date.now() - start) / 1000;
     const finalRam = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2);
 
+    // if possible we save a snapshot of the index to disk, so that future loads are faster
     if (process.env.NODE_ENV !== 'production' || process.env.SAVE_SNAPSHOT === 'true') {
       await this.saveSnapshot();
       this.logger.log(`✅ Index snapshot saved to disk (${this.SNAPSHOT_FILE})`);
@@ -220,11 +223,15 @@ export class ProductService implements OnApplicationBootstrap {
   }
 
   async searchProducts(query: string, paginationLimit: number = 20) {
+
+    // Basic validation and early returns
     if (!this.isReady) throw new Error('Index is still building, please wait.');
     if (!query) return [];
 
+    // Start measuring the algorithm time
     const algorithmStartTimer = performance.now();
 
+    // Get the search terms and filter single characters (noise) 
     const terms = query
       .toLowerCase()
       .replace(/[^a-z0-9 ]/g, '')
@@ -233,7 +240,7 @@ export class ProductService implements OnApplicationBootstrap {
 
     if (terms.length === 0) return [];
 
-    // 1. Sort terms by "Rarest Word First" (to minimize intersection size)
+    // 1. Sort terms by "Rarest Word First" to minimize intersection size
     const sortedTerms = terms
       .map(term => ({ term, ids: this.invertedIndex.get(term) || [] }))
       .sort((a, b) => a.ids.length - b.ids.length);
@@ -241,25 +248,27 @@ export class ProductService implements OnApplicationBootstrap {
     // If the rarest word isn't found then no results exist
     if (sortedTerms[0].ids.length === 0) return { meta: { total: 0 }, data: [] };
 
-    // 2. Initialize the result with the smallest list size
+    // 2. Initialize the result with the smallest list size based on the rarest word
     let resultIds = [...sortedTerms[0].ids];
 
-    // 3. Intersect with other lists
+    // 3. Intersect with other lists of words
     for (let i = 1; i < sortedTerms.length; i++) {
       const nextIdSet = new Set(sortedTerms[i].ids);
       resultIds = resultIds.filter(id => nextIdSet.has(id));
       if (resultIds.length === 0) break;
     }
 
-    // 4. SORT BY SCORE (Ranking based on the previous scoring logic => Reviews > Stars)
+    // 4. Sort by score (Ranking based on Reviews > Stars)
     resultIds.sort((a, b) => this.productScores[b] - this.productScores[a]);
 
+    // Declaring pagination variables
     const totalResults = resultIds.length;
     const pagedIds = resultIds.slice(0, paginationLimit); 
 
+    // Start measuring the data hydration time
     const fetchStartTimer = performance.now();
 
-    // --- Data Hydration (Fetching all the results from DB) ---
+    //  Data Hydration: Fetching all the results from DB
     let completedProducts: Product[] = [];
 
     if (pagedIds.length > 0) {
@@ -276,9 +285,10 @@ export class ProductService implements OnApplicationBootstrap {
       const productMap = new Map(unsortedProducts.map(p => [p.asin, p]));
       completedProducts = realAsins
         .map(asin => productMap.get(asin))
-        .filter(p => !!p); // Filter out any inconsistencies
+        .filter(p => !!p); // Filter out inconsistencies
     }
 
+    // Finish the timer for the entire search operation (algorithm + DB fetch)
     const endTimers = performance.now();
 
     // Performance Metrics that are used in the frontend to display search time
